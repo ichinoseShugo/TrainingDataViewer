@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace TrainingDataViewer
 {
@@ -20,9 +9,46 @@ namespace TrainingDataViewer
     /// </summary>
     public partial class MainWindow : Window
     {
+        public string directoryPath = "";
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            //OpenDirectoryDialog();
+            //GetImages();
+        }
+
+        private void DirectoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenDirectoryDialog();
+        }
+
+        private void OpenDirectoryDialog()
+        {
+            var dialog = new CommonOpenFileDialog("保存フォルダ選択");
+            // フォルダ選択モード。
+            dialog.IsFolderPicker = true;
+            dialog.InitialDirectory = @"C:\Users\S\Documents\Kinect\TrainingData";
+            
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                this.directoryPathBox.Text = dialog.FileName;
+                directoryPath = dialog.FileName;
+            }
+        }
+
+        private void GetImages()
+        {
+            string[] files = System.IO.Directory.GetFiles(
+               directoryPath + "\\image", "*.bmp", System.IO.SearchOption.AllDirectories);
+            foreach (string file in files)
+            {
+                Console.WriteLine(file);
+            }
         }
     }
 }
