@@ -27,6 +27,11 @@ namespace TrainingDataViewer
             GetImages();
         }
 
+        private void InitializeView()
+        {
+
+        }
+
         private void DirectoryButton_Click(object sender, RoutedEventArgs e)
         {
             OpenDirectoryDialog();
@@ -78,6 +83,11 @@ namespace TrainingDataViewer
             bitmap.EndInit();
             // Imageコントロールに表示
             Image.Source = bitmap;
+        }
+
+        private void Data_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            
         }
     }
 }

@@ -5,12 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TrainingDataViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Width="1300" Height="600"
+        Title="MainWindow" Width="1300" Height="700"
         Loaded="Window_Loaded">
     <StackPanel>
         <Button x:Name="DirectoryButton" Content="ディレクトリ選択" Click="DirectoryButton_Click"/>
         <Label x:Name="DirectoryPathBox" Content="ディレクトリパス"/>
-        <Slider x:Name="Slider"
+        <ComboBox x:Name="Data" DataContextChanged="Data_DataContextChanged"/>
+            <Slider x:Name="Slider"
             Minimum="1"
             Maximum="100"
             TickFrequency="1"
