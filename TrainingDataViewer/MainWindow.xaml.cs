@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Windows.Media.Imaging;
 
 namespace TrainingDataViewer
 {
@@ -10,6 +11,10 @@ namespace TrainingDataViewer
     public partial class MainWindow : Window
     {
         public string directoryPath = "";
+        string[] files;
+        BitmapImage bitmap = null;
+
+        DataList dataList;
 
         public MainWindow()
         {
@@ -18,8 +23,8 @@ namespace TrainingDataViewer
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //OpenDirectoryDialog();
-            //GetImages();
+            OpenDirectoryDialog();
+            GetImages();
         }
 
         private void DirectoryButton_Click(object sender, RoutedEventArgs e)
@@ -32,23 +37,47 @@ namespace TrainingDataViewer
             var dialog = new CommonOpenFileDialog("保存フォルダ選択");
             // フォルダ選択モード。
             dialog.IsFolderPicker = true;
-            dialog.InitialDirectory = @"C:\Users\S\Documents\Kinect\TrainingData";
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + @"\Kinect\TrainingData";
             
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                this.directoryPathBox.Text = dialog.FileName;
+                this.DirectoryPathBox.Content = dialog.FileName;
                 directoryPath = dialog.FileName;
+                dataList = new DataList(directoryPath);
             }
         }
 
         private void GetImages()
         {
-            string[] files = System.IO.Directory.GetFiles(
-               directoryPath + "\\image", "*.bmp", System.IO.SearchOption.AllDirectories);
-            foreach (string file in files)
+            files = System.IO.Directory.GetFiles(
+               directoryPath + "\\image", "*.jpg", System.IO.SearchOption.AllDirectories);
+            if (files.Length > 0) Slider.Maximum = files.Length;
+            ShowImage(files[0]);
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (files != null)
             {
-                Console.WriteLine(file);
+                //Console.WriteLine((int)e.NewValue);
+                ShowImage(files[(int)(e.NewValue - 1)]);
             }
+        }
+
+        private void ShowImage(string filename)
+        {
+            // 既に読み込まれていたら解放する
+            if (bitmap != null)
+            {
+                bitmap = null;
+            }
+            // BitmapImageにファイルから画像を読み込む
+            bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(filename);
+            bitmap.EndInit();
+            // Imageコントロールに表示
+            Image.Source = bitmap;
         }
     }
 }

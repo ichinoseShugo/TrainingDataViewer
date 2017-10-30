@@ -5,22 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TrainingDataViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
+        Title="MainWindow" Width="1300" Height="600"
         Loaded="Window_Loaded">
     <StackPanel>
-        <Button x:Name="directoryButton" Content="ディレクトリ選択" Click="DirectoryButton_Click"/>
-        <TextBox x:Name="directoryPathBox" Text="ディレクトリパス"/>
-        <Slider x:Name="slider"
-            Minimum="0"
+        <Button x:Name="DirectoryButton" Content="ディレクトリ選択" Click="DirectoryButton_Click"/>
+        <Label x:Name="DirectoryPathBox" Content="ディレクトリパス"/>
+        <Slider x:Name="Slider"
+            Minimum="1"
             Maximum="100"
             TickFrequency="1"
             SmallChange="1" 
-            LargeChange="10"/>
-        <TextBlock Text="{Binding Value, ElementName=slider}" />
+            LargeChange="100"
+            ValueChanged="Slider_ValueChanged"/>
+        <Label Content="{Binding Value, ElementName=Slider}" />
         <StackPanel Orientation="Horizontal">
-            <TextBox x:Name="text1" Text="ディレクトリパス"/>
-            <TextBox x:Name="text2" Text="ディレクトリパス"/>
-            <Image x:Name="Image"/>
+            <Image x:Name="Image" Width="640" Height="480"/>
         </StackPanel>
     </StackPanel>
 </Window>
