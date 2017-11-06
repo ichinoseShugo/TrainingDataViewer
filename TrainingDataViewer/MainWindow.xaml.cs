@@ -2,6 +2,7 @@
 using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace TrainingDataViewer
 {
@@ -11,7 +12,7 @@ namespace TrainingDataViewer
     public partial class MainWindow : Window
     {
         public string directoryPath = "";
-        string[] files;
+        string[] imageFiles;
         BitmapImage bitmap = null;
 
         DataList dataList;
@@ -25,11 +26,19 @@ namespace TrainingDataViewer
         {
             OpenDirectoryDialog();
             GetImages();
+            RenameImage();
+            ShowImage(imageFiles[0]);
+            InitializeView();
         }
 
         private void InitializeView()
         {
+            dataList = new DataList(directoryPath);
+            DataNamesBox.ItemsSource = dataList.DataNames;
+            foreach(var names in dataList.DataNames)
+            {
 
+            }
         }
 
         private void DirectoryButton_Click(object sender, RoutedEventArgs e)
@@ -48,24 +57,56 @@ namespace TrainingDataViewer
             {
                 this.DirectoryPathBox.Content = dialog.FileName;
                 directoryPath = dialog.FileName;
-                dataList = new DataList(directoryPath);
             }
         }
 
         private void GetImages()
         {
-            files = System.IO.Directory.GetFiles(
-               directoryPath + "\\image", "*.jpg", System.IO.SearchOption.AllDirectories);
-            if (files.Length > 0) Slider.Maximum = files.Length;
-            ShowImage(files[0]);
+            imageFiles = Directory.GetFiles(
+               directoryPath + "\\image", "*.jpg", SearchOption.AllDirectories);
+            if (imageFiles.Length > 0) Slider.Maximum = imageFiles.Length;
+            //foreach(var file in imageFiles)Console.WriteLine(file);
+        }
+
+        /// <summary>
+        /// jpgの名前を変える
+        /// </summary>
+        private void RenameImage()
+        {
+            //jpgの名前の長さが12なら必要なし
+            string[] samples = imageFiles[0].Split('\\');
+            if (samples[samples.Length - 1].Length == 12)
+            {
+                //MessageBox.Show("FileName is OK");
+                return;
+            }
+
+            //rename作業
+            foreach (var file in imageFiles)
+            {
+                //名前変更の準備
+                string[] token = file.Split('\\');//fileはパス名なので\で分割
+                string last = token[token.Length - 1];//jpgファイル名
+                while (last.Length < 12) last = "0" + last;//0を追加
+                
+                //名前変更後ファイルのパスの作成
+                string renamePath = "C:";
+                for (int i = 1; i < token.Length - 1; i++) renamePath +="\\" + token[i];
+                renamePath +="\\" + last;
+                
+                //名前変更
+                File.Move(@file, @renamePath);
+            }
+
+            //再びファイルパス取得
+            GetImages();
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (files != null)
+            if (imageFiles != null)
             {
-                //Console.WriteLine((int)e.NewValue);
-                ShowImage(files[(int)(e.NewValue - 1)]);
+                ShowImage(imageFiles[(int)(e.NewValue - 1)]);
             }
         }
 
@@ -85,7 +126,7 @@ namespace TrainingDataViewer
             Image.Source = bitmap;
         }
 
-        private void Data_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void DataNamesBox_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             
         }

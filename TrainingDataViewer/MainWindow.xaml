@@ -10,7 +10,7 @@
     <StackPanel>
         <Button x:Name="DirectoryButton" Content="ディレクトリ選択" Click="DirectoryButton_Click"/>
         <Label x:Name="DirectoryPathBox" Content="ディレクトリパス"/>
-        <ComboBox x:Name="Data" DataContextChanged="Data_DataContextChanged"/>
+        <ComboBox x:Name="DataNamesBox" DataContextChanged="DataNamesBox_DataContextChanged"/>
             <Slider x:Name="Slider"
             Minimum="1"
             Maximum="100"
