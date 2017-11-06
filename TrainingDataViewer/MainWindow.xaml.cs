@@ -27,18 +27,18 @@ namespace TrainingDataViewer
             OpenDirectoryDialog();
             GetImages();
             RenameImage();
-            ShowImage(imageFiles[0]);
             InitializeView();
         }
 
         private void InitializeView()
         {
+            //jpg表示関連
+            ShowImage(imageFiles[0]);//画像表示
+            ImageLabel.Content = imageFiles[0];//画像ラベル表示
+
+            //グラフ関連
             dataList = new DataList(directoryPath);
             DataNamesBox.ItemsSource = dataList.DataNames;
-            foreach(var names in dataList.DataNames)
-            {
-
-            }
         }
 
         private void DirectoryButton_Click(object sender, RoutedEventArgs e)
@@ -106,7 +106,9 @@ namespace TrainingDataViewer
         {
             if (imageFiles != null)
             {
-                ShowImage(imageFiles[(int)(e.NewValue - 1)]);
+                int imageIndex = (int)(e.NewValue - 1);
+                ShowImage(imageFiles[imageIndex]);
+                ImageLabel.Content = imageFiles[imageIndex];
             }
         }
 
@@ -126,9 +128,9 @@ namespace TrainingDataViewer
             Image.Source = bitmap;
         }
 
-        private void DataNamesBox_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void DataNamesBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            
+            Console.WriteLine(DataNamesBox.SelectedValue.ToString() + "--------------------------------");
         }
     }
 }

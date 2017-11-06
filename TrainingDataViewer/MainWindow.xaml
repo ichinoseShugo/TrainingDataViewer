@@ -10,7 +10,7 @@
     <StackPanel>
         <Button x:Name="DirectoryButton" Content="ディレクトリ選択" Click="DirectoryButton_Click"/>
         <Label x:Name="DirectoryPathBox" Content="ディレクトリパス"/>
-        <ComboBox x:Name="DataNamesBox" DataContextChanged="DataNamesBox_DataContextChanged"/>
+        <ComboBox x:Name="DataNamesBox" SelectionChanged="DataNamesBox_SelectionChanged"/>
             <Slider x:Name="Slider"
             Minimum="1"
             Maximum="100"
@@ -18,7 +18,7 @@
             SmallChange="1" 
             LargeChange="100"
             ValueChanged="Slider_ValueChanged"/>
-        <Label Content="{Binding Value, ElementName=Slider}" />
+        <Label Name="ImageLabel" Content="jpgName" />
         <StackPanel Orientation="Horizontal">
             <Image x:Name="Image" Width="640" Height="480"/>
         </StackPanel>
