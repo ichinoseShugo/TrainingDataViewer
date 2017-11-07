@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TrainingDataViewer"
+        xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
         Title="MainWindow" Width="1300" Height="700"
         Loaded="Window_Loaded">
@@ -21,6 +22,7 @@
         <Label Name="ImageLabel" Content="jpgName" />
         <StackPanel Orientation="Horizontal">
             <Image x:Name="Image" Width="640" Height="480"/>
+            <oxy:PlotView Name="MyPlot" Width="640" Height="480"/>
         </StackPanel>
     </StackPanel>
 </Window>

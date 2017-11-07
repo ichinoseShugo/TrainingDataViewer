@@ -17,6 +17,9 @@ namespace TrainingDataViewer
 
         DataList dataList;
 
+
+        PlotViewModel model;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -39,6 +42,9 @@ namespace TrainingDataViewer
             //グラフ関連
             dataList = new DataList(directoryPath);
             DataNamesBox.ItemsSource = dataList.DataNames;
+
+            model = new PlotViewModel();
+            MyPlot.Model = model.GetModel();
         }
 
         private void DirectoryButton_Click(object sender, RoutedEventArgs e)
@@ -110,6 +116,8 @@ namespace TrainingDataViewer
                 ShowImage(imageFiles[imageIndex]);
                 ImageLabel.Content = imageFiles[imageIndex];
             }
+            //MyPlot.Model = model.GetModel();
+            //MyPlot.Model.InvalidatePlot(true);
         }
 
         private void ShowImage(string filename)
@@ -130,7 +138,19 @@ namespace TrainingDataViewer
 
         private void DataNamesBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            Console.WriteLine(DataNamesBox.SelectedValue.ToString() + "--------------------------------");
+            model.ClearSeries();
+            string dataname = DataNamesBox.SelectedValue.ToString();
+            switch (dataname)
+            {
+                case "Touch":
+                    model.AddLineSeries(dataList.GetDataList(dataname));
+                    break;
+                default:
+                    model.AddLineSeries(dataList.GetDataList(dataname));
+                    break;
+            }
+            MyPlot.Model = model.GetModel();
+            MyPlot.Model.InvalidatePlot(true);
         }
     }
 }

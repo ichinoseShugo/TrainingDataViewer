@@ -56,9 +56,6 @@ namespace TrainingDataViewer
                     //foreach (var name in RowNames) Console.WriteLine(name);
                     for (int k = 0; k < data.Length; k++)
                     {
-                        //Console.WriteLine(RowNames[k]);
-                        //Console.WriteLine(data[k]);
-                        //foreach(var d in data[k]) Console.WriteLine(d[0] + ":" + d[1]);
                         NameToData.Add(RowNames[k], data[k]);//名前とデータ配列の対応付け
                     }
                     
@@ -72,7 +69,7 @@ namespace TrainingDataViewer
             }
         }
 
-        public List<double[]> getDataList(string DataName)
+        public List<double[]> GetDataList(string DataName)
         {
             return (List<double[]>)NameToData[DataName];
         }
