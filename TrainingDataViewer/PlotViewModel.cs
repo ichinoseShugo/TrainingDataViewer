@@ -5,56 +5,61 @@ using System.Text;
 using System.Threading.Tasks;
 
 using OxyPlot;
-using OxyPlot.Wpf;
 using OxyPlot.Series;
 
 namespace TrainingDataViewer
 {
     class PlotViewModel
     {
-        public PlotModel MyModel { get; private set; }
-        //public List<> series = new List<>();
-
+        public PlotModel MyModel;
+        
         public PlotViewModel()
         {
             this.MyModel = new PlotModel();
+        }
 
-            var lineSeries = new OxyPlot.Series.LineSeries();
-            IList<DataPoint> points = new List<DataPoint>
+        public void ChangePositionSeries(double value)
+        {
+            //this.MyModel.Series[0]
+            //this.MyModel.Series.RemoveAt(this.MyModel.Series.Count - 1);
+            //this.MyModel.Series.Remove();
+            IList<DataPoint> position = new List<DataPoint>
             {
-                new DataPoint(1,0),
-                new DataPoint(1,1)
+                new DataPoint(value, 0),
+                new DataPoint(value, 10)
             };
-            lineSeries.ItemsSource = points;
+            LineSeries lineSeries = new LineSeries
+            {
+                ItemsSource = position,
+                StrokeThickness = 2,
+                Title = "position",
+            };
             this.MyModel.Series.Add(lineSeries);
         }
 
-        public void AddLineSeries(List<double[]> dataList)
+        public void AddLineSeries(String dataName, List<double[]> dataList)
         {
-            var lineSeries = new OxyPlot.Series.LineSeries();
             IList<DataPoint> points = new List<DataPoint>();
             foreach(var list in dataList) points.Add(new DataPoint(list[0], list[1]));
-            lineSeries.ItemsSource = points;
+            LineSeries lineSeries = new LineSeries
+            {
+                ItemsSource = points,
+                StrokeThickness = 1,
+                Title = dataName,
+            };
             this.MyModel.Series.Add(lineSeries);
+            //this.MyModel.Series.Insert(this.MyModel.Series.Count-1,lineSeries);
         }
-
-        public void AddBarSeries(List<double[]> dataList)
-        {
-            var BarSeries = new OxyPlot.Series.BarSeries();
-            IList<DataPoint> points = new List<DataPoint>();
-            foreach (var list in dataList) points.Add(new DataPoint(list[0], list[1]));
-            BarSeries.ItemsSource = points;
-            this.MyModel.Series.Add(BarSeries);
-        }
-
+        
         public void ClearSeries()
         {
-            this.MyModel.Series.Clear();
+            if(this.MyModel.Series.Count>0) this.MyModel.Series.Clear();
         }
 
-        public void RemoveSeries()
+        public void RemoveSeries(string dataname)
         {
-
+            //;
+            //if (this.MyModel.Series.Count > 0) this.MyModel.Series.Remove();
         }
 
         public PlotModel GetModel()

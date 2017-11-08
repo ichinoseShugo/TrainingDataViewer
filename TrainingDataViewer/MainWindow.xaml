@@ -6,20 +6,31 @@
         xmlns:local="clr-namespace:TrainingDataViewer"
         xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Width="1300" Height="700"
+        Title="MainWindow" Width="1300" Height="800"
         Loaded="Window_Loaded">
     <StackPanel>
-        <Button x:Name="DirectoryButton" Content="ディレクトリ選択" Click="DirectoryButton_Click"/>
+        <Button x:Name="DirectoryButton" Content="ディレクトリ選択" Click="DirectoryButton_Click" HorizontalAlignment="Left" VerticalContentAlignment="Stretch"/>
         <Label x:Name="DirectoryPathBox" Content="ディレクトリパス"/>
-        <ComboBox x:Name="DataNamesBox" SelectionChanged="DataNamesBox_SelectionChanged"/>
-            <Slider x:Name="Slider"
+        <ComboBox x:Name="DataNamesBox" SelectionChanged="DataNamesBox_SelectionChanged" Width="250" HorizontalAlignment="Left"/>
+        <StackPanel Orientation="Horizontal">
+            <CheckBox Name="WriteCheck" Content="グラフを上書きする" Margin="10,5,0,5" />
+            <CheckBox Name="PositionVisibleCheck" Content="グラフに画像の位置を表示させる" IsChecked="True" Margin="10,5,0,5"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Button Name="ClearButton" Content="グラフをすべてクリア" Click="ClearButton_Click" VerticalContentAlignment="Stretch" Margin="10,5,0,5"/>
+            <Button Name="RemoveButton" Content="選択しているグラフを削除" Click="RemoveButton_Click"  VerticalContentAlignment="Stretch" Margin="10,5,0,5"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Label Name="DataLabel" Content="dataValue" />
+            <Label Name="ImageLabel" Content="jpgName" />
+        </StackPanel>
+        <Slider x:Name="Slider"
             Minimum="1"
             Maximum="100"
             TickFrequency="1"
             SmallChange="1" 
             LargeChange="100"
-            ValueChanged="Slider_ValueChanged"/>
-        <Label Name="ImageLabel" Content="jpgName" />
+            ValueChanged="Slider_ValueChanged" Margin="50,20,50,10"/>
         <StackPanel Orientation="Horizontal">
             <Image x:Name="Image" Width="640" Height="480"/>
             <oxy:PlotView Name="MyPlot" Width="640" Height="480"/>

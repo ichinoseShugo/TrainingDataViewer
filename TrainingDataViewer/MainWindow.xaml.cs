@@ -3,6 +3,7 @@ using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Collections.Generic;
 
 namespace TrainingDataViewer
 {
@@ -16,7 +17,7 @@ namespace TrainingDataViewer
         BitmapImage bitmap = null;
 
         DataList dataList;
-
+        List<double[]> rowList = new List<double[]>();
 
         PlotViewModel model;
 
@@ -71,7 +72,6 @@ namespace TrainingDataViewer
             imageFiles = Directory.GetFiles(
                directoryPath + "\\image", "*.jpg", SearchOption.AllDirectories);
             if (imageFiles.Length > 0) Slider.Maximum = imageFiles.Length;
-            //foreach(var file in imageFiles)Console.WriteLine(file);
         }
 
         /// <summary>
@@ -81,11 +81,7 @@ namespace TrainingDataViewer
         {
             //jpgの名前の長さが12なら必要なし
             string[] samples = imageFiles[0].Split('\\');
-            if (samples[samples.Length - 1].Length == 12)
-            {
-                //MessageBox.Show("FileName is OK");
-                return;
-            }
+            if (samples[samples.Length - 1].Length == 12) return;
 
             //rename作業
             foreach (var file in imageFiles)
@@ -116,8 +112,14 @@ namespace TrainingDataViewer
                 ShowImage(imageFiles[imageIndex]);
                 ImageLabel.Content = imageFiles[imageIndex];
             }
-            //MyPlot.Model = model.GetModel();
-            //MyPlot.Model.InvalidatePlot(true);
+            if (rowList.Count > 0)
+            {
+                model.ChangePositionSeries(rowList[(int)(e.NewValue - 1)][0]);
+                MyPlot.Model = model.GetModel();
+                MyPlot.Model.InvalidatePlot(true);
+
+                DataLabel.Content = rowList[(int)(e.NewValue - 1)][0];
+            }
         }
 
         private void ShowImage(string filename)
@@ -138,19 +140,33 @@ namespace TrainingDataViewer
 
         private void DataNamesBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            model.ClearSeries();
+            if (DataNamesBox.SelectedIndex < 0) return;
+            //if(WriteCheck.IsChecked == false)model.ClearSeries();
             string dataname = DataNamesBox.SelectedValue.ToString();
+            rowList = dataList.GetDataList(dataname);
             switch (dataname)
             {
                 case "Touch":
-                    model.AddLineSeries(dataList.GetDataList(dataname));
+                    model.AddLineSeries(dataname, dataList.GetDataList(dataname));
                     break;
                 default:
-                    model.AddLineSeries(dataList.GetDataList(dataname));
+                    model.AddLineSeries(dataname, dataList.GetDataList(dataname));
                     break;
             }
             MyPlot.Model = model.GetModel();
             MyPlot.Model.InvalidatePlot(true);
+        }
+
+        private void ClearButton_Click(object sender, RoutedEventArgs e)
+        {
+            model.ClearSeries();
+            MyPlot.Model.InvalidatePlot(true);
+            DataNamesBox.SelectedIndex = -1;
+        }
+
+        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
