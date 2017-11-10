@@ -11,13 +11,13 @@ namespace TrainingDataViewer
     public class DataList
     {
         /// <summary>
-        /// 名前をkeyとしてvalueをdouble配列としたHash
-        /// </summary>
-        private Hashtable NameToData = new Hashtable();
-        /// <summary>
         /// 読み込んだファイル内の各列についている名前の配列
         /// </summary>
         public string[] DataNames = new string[0];
+        /// <summary>
+        /// 名前をkeyとしてvalueをdouble配列としたHash
+        /// </summary>
+        private Hashtable NameToData = new Hashtable();
 
         /// <summary>
         /// コンストラクタ

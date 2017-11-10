@@ -13,7 +13,7 @@
         <Label x:Name="DirectoryPathBox" Content="ディレクトリパス"/>
         <ComboBox x:Name="DataNamesBox" SelectionChanged="DataNamesBox_SelectionChanged" Width="250" HorizontalAlignment="Left"/>
         <StackPanel Orientation="Horizontal">
-            <CheckBox Name="WriteCheck" Content="グラフを上書きする" Margin="10,5,0,5" />
+            <CheckBox Name="OverlapCheck" Content="グラフを重ねて表示" Margin="10,5,0,5" />
             <CheckBox Name="PositionVisibleCheck" Content="グラフに画像の位置を表示させる" IsChecked="True" Margin="10,5,0,5"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">

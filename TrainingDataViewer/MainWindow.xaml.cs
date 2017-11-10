@@ -44,7 +44,7 @@ namespace TrainingDataViewer
             dataList = new DataList(directoryPath);
             DataNamesBox.ItemsSource = dataList.DataNames;
 
-            model = new PlotViewModel();
+            model = new PlotViewModel(dataList);
             MyPlot.Model = model.GetModel();
         }
 
@@ -112,13 +112,11 @@ namespace TrainingDataViewer
                 ShowImage(imageFiles[imageIndex]);
                 ImageLabel.Content = imageFiles[imageIndex];
             }
-            if (rowList.Count > 0)
+            if (model != null)
             {
-                model.ChangePositionSeries(rowList[(int)(e.NewValue - 1)][0]);
-                MyPlot.Model = model.GetModel();
+                model.ChangePositionSeries(e.NewValue - 1);
                 MyPlot.Model.InvalidatePlot(true);
-
-                DataLabel.Content = rowList[(int)(e.NewValue - 1)][0];
+                DataLabel.Content = e.NewValue - 1;
             }
         }
 
@@ -140,20 +138,16 @@ namespace TrainingDataViewer
 
         private void DataNamesBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            //DataNamesBoxが何も選択していなかったら何もしない
             if (DataNamesBox.SelectedIndex < 0) return;
-            //if(WriteCheck.IsChecked == false)model.ClearSeries();
-            string dataname = DataNamesBox.SelectedValue.ToString();
-            rowList = dataList.GetDataList(dataname);
-            switch (dataname)
-            {
-                case "Touch":
-                    model.AddLineSeries(dataname, dataList.GetDataList(dataname));
-                    break;
-                default:
-                    model.AddLineSeries(dataname, dataList.GetDataList(dataname));
-                    break;
-            }
-            MyPlot.Model = model.GetModel();
+            //「グラフを重ねて表示」にチェックがないならSeriesをクリア
+            if (OverlapCheck.IsChecked == false) model.ClearSeries();
+
+
+            string dataName = DataNamesBox.SelectedValue.ToString();
+            if (model.Contains(dataName)) model.AddLineSeries(dataName);
+            if (model.Contains("ImagePosition")) model.AddLineSeries("ImagePosition");
+
             MyPlot.Model.InvalidatePlot(true);
         }
 
@@ -166,6 +160,7 @@ namespace TrainingDataViewer
 
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
         {
+            if (DataNamesBox.SelectedIndex < 0) return;
 
         }
     }
