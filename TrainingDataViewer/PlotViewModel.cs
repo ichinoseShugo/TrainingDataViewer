@@ -12,6 +12,7 @@ namespace TrainingDataViewer
 {
     class PlotViewModel
     {
+        DataList MyDataList;
         public PlotModel MyPlotModel;
         /// <summary>
         /// 読み込んだファイル内の各列についている名前の配列
@@ -21,6 +22,14 @@ namespace TrainingDataViewer
         /// 名前をkeyとしてvalueをSeriesとしたHash
         /// </summary>
         private Hashtable NameToSeries = new Hashtable();
+        /// <summary>
+        /// Seriesの最大値
+        /// </summary>
+        public double Max = 0;
+        /// <summary>
+        /// Seriesの最小値
+        /// </summary>
+        public double Min = 0;
 
         /// <summary>
         /// コンストラクタ
@@ -28,15 +37,15 @@ namespace TrainingDataViewer
         /// <param name="dataList"></param>
         public PlotViewModel(DataList dataList)
         {
+            this.MyDataList = dataList;
             this.MyPlotModel = new PlotModel();
-            this.DataNames = dataList.DataNames;
+            this.DataNames = MyDataList.DataNames;
+
             foreach (var dataname in this.DataNames)
             {
-                CreateLineSeries(dataname, 1, dataList.GetDataList(dataname));
+                CreateLineSeries(dataname, 1, MyDataList.GetDataList(dataname));
             }
-            CreateLineSeries("ImagePosition", 2, new List<double[]>(){ new double[]{0, 0}, new double[] { 0, 10 }, });
-
-            //this.MyPlotModel.Series.Add((LineSeries)NameToSeries["ImagePosition"]);
+            CreateLineSeries("ImagePosition", 1, new List<double[]>(){ new double[]{0, 0}, new double[] { 0, 0 }, });
         }
 
         /// <summary>
@@ -60,20 +69,7 @@ namespace TrainingDataViewer
             };
             NameToSeries.Add(dataName, lineSeries);
         }
-
-        /// <summary>
-        /// スライダーの値からPositionSeriesの位置を変更
-        /// </summary>
-        /// <param name="value"></param>
-        public void ChangePositionSeries(double sliderValue)
-        {
-            ((LineSeries)NameToSeries["ImagePosition"]).ItemsSource = new List<DataPoint>
-            {
-                new DataPoint(sliderValue, 0),
-                new DataPoint(sliderValue, 10)
-            };
-        }
-        
+  
         /// <summary>
         /// 描画するSeriesを追加
         /// </summary>
@@ -83,13 +79,58 @@ namespace TrainingDataViewer
         {
             this.MyPlotModel.Series.Add((LineSeries)NameToSeries[dataName]);
         }
-        
+
         /// <summary>
-        /// position以外のSeriesをクリア
+        /// PositionSeriesのX軸の位置を変更
+        /// </summary>
+        /// <param name="xValue"></param>
+        public void ChangePositionX(double xValue)
+        {
+            if (Max == Min) return;
+            ((LineSeries)NameToSeries["ImagePosition"]).ItemsSource = new List<DataPoint>
+            {
+                new DataPoint(xValue, Max),
+                new DataPoint(xValue, Min),
+            };
+        }
+
+        /// <summary>
+        /// Seriesを削除
+        /// </summary>
+        public void RemoveSeries(string dataName)
+        {
+            int index = this.MyPlotModel.Series.IndexOf((LineSeries)NameToSeries[dataName]);
+            this.MyPlotModel.Series.RemoveAt(index);
+        }
+
+        /// <summary>
+        /// すべてのSeriesをクリア
         /// </summary>
         public void ClearSeries()
         {
             if(this.MyPlotModel.Series.Count>0) this.MyPlotModel.Series.Clear();
+        }
+
+        /// <summary>
+        /// 選択されているSeries中の最大値と最小値を求める
+        /// </summary>
+        public void SetSlectedSeries(List<string> selectedNames)
+        {
+            if (selectedNames.Count < 1)
+            {
+                Max = 0;
+                Min = 0;
+                return;
+            }
+            double max = MyDataList.GetMax(selectedNames[0]);
+            double min = MyDataList.GetMin(selectedNames[0]);
+            foreach (var name in selectedNames)
+            {
+                if (max < MyDataList.GetMax(name)) max = MyDataList.GetMax(name);
+                if (min > MyDataList.GetMin(name)) min = MyDataList.GetMin(name);
+            }
+            Max = max;
+            Min = min;
         }
 
         /// <summary>
@@ -102,6 +143,10 @@ namespace TrainingDataViewer
             return this.MyPlotModel.Series.Contains((LineSeries)NameToSeries[dataName]);
         }
 
+        /// <summary>
+        /// モデルの取得
+        /// </summary>
+        /// <returns></returns>
         public PlotModel GetModel()
         {
             return MyPlotModel;

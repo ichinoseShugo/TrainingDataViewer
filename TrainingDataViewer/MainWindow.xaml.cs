@@ -4,6 +4,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace TrainingDataViewer
 {
@@ -13,13 +14,16 @@ namespace TrainingDataViewer
     public partial class MainWindow : Window
     {
         public string directoryPath = "";
-        string[] imageFiles;
+        string[] imageFilePathes;
+        int[] imageFileTimes;
+        int imageIndex;
         BitmapImage bitmap = null;
 
         DataList dataList;
         List<double[]> rowList = new List<double[]>();
 
         PlotViewModel model;
+        List<string> selectedNames = new List<string>(); 
 
         public MainWindow()
         {
@@ -30,19 +34,18 @@ namespace TrainingDataViewer
         {
             OpenDirectoryDialog();
             GetImages();
-            RenameImage();
             InitializeView();
         }
 
         private void InitializeView()
         {
             //jpg表示関連
-            ShowImage(imageFiles[0]);//画像表示
-            ImageLabel.Content = imageFiles[0];//画像ラベル表示
+            ShowImage(imageFilePathes[0]);//画像表示
+            ImageLabel.Content = imageFilePathes[0];//画像ラベル表示
 
             //グラフ関連
             dataList = new DataList(directoryPath);
-            DataNamesBox.ItemsSource = dataList.DataNames;
+            this.NameBox.ItemsSource = dataList.DataNames;
 
             model = new PlotViewModel(dataList);
             MyPlot.Model = model.GetModel();
@@ -69,9 +72,41 @@ namespace TrainingDataViewer
 
         private void GetImages()
         {
-            imageFiles = Directory.GetFiles(
+            imageFilePathes = Directory.GetFiles(
                directoryPath + "\\image", "*.jpg", SearchOption.AllDirectories);
-            if (imageFiles.Length > 0) Slider.Maximum = imageFiles.Length;
+
+            string[] samples = imageFilePathes[0].Split('\\');
+            if (samples[samples.Length - 1].Length < 12) RenameImage();
+
+            imageFileTimes = new int[imageFilePathes.Length];
+            for (int i = 0; i < imageFilePathes.Length; i++)
+            {
+                string[] token = imageFilePathes[i].Split('\\');//fileはパス名なので\で分割
+                imageFileTimes[i] = int.Parse(NumMatcher(token[token.Length - 1]));
+            }
+
+            Slider.Minimum = imageFileTimes[0];
+            DataLabel.Content = imageFileTimes[0];
+            Slider.Maximum = imageFileTimes[imageFileTimes.Length-1];
+        }
+
+        private string NumMatcher(string target)
+        {
+            //Regexオブジェクトを作成
+            Regex r = new Regex(@"[1-9][0-9]+", RegexOptions.IgnoreCase);
+
+            //TextBox1.Text内で正規表現と一致する対象を1つ検索
+            Match m = r.Match(target);
+
+            string match = "";
+            while (m.Success)
+            {
+                //一致した対象が見つかったときキャプチャした部分文字列を表示
+                match = m.Value; 
+                //次に一致する対象を検索
+                m = m.NextMatch();
+            }
+            return match;
         }
 
         /// <summary>
@@ -79,23 +114,19 @@ namespace TrainingDataViewer
         /// </summary>
         private void RenameImage()
         {
-            //jpgの名前の長さが12なら必要なし
-            string[] samples = imageFiles[0].Split('\\');
-            if (samples[samples.Length - 1].Length == 12) return;
-
-            //rename作業
-            foreach (var file in imageFiles)
+            foreach (var file in imageFilePathes)
             {
                 //名前変更の準備
                 string[] token = file.Split('\\');//fileはパス名なので\で分割
                 string last = token[token.Length - 1];//jpgファイル名
+
                 while (last.Length < 12) last = "0" + last;//0を追加
-                
+
                 //名前変更後ファイルのパスの作成
                 string renamePath = "C:";
-                for (int i = 1; i < token.Length - 1; i++) renamePath +="\\" + token[i];
-                renamePath +="\\" + last;
-                
+                for (int i = 1; i < token.Length - 1; i++) renamePath += "\\" + token[i];
+                renamePath += "\\" + last;
+
                 //名前変更
                 File.Move(@file, @renamePath);
             }
@@ -106,18 +137,36 @@ namespace TrainingDataViewer
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (imageFiles != null)
+            imageIndex = CloserImageIndex(e.NewValue);
+            if (imageFilePathes != null)
             {
-                int imageIndex = (int)(e.NewValue - 1);
-                ShowImage(imageFiles[imageIndex]);
-                ImageLabel.Content = imageFiles[imageIndex];
+                ShowImage(imageFilePathes[imageIndex]);
+                ImageLabel.Content = imageFilePathes[imageIndex];
             }
             if (model != null)
             {
-                model.ChangePositionSeries(e.NewValue - 1);
+                model.ChangePositionX(imageFileTimes[imageIndex]);
                 MyPlot.Model.InvalidatePlot(true);
-                DataLabel.Content = e.NewValue - 1;
+                DataLabel.Content = e.NewValue;
             }
+        }
+
+        private int CloserImageIndex(double value)
+        {
+            double dist = 999999999999999999;
+            for (int i=0; i<imageFileTimes.Length; i++)
+            {
+                double diff = Math.Abs(imageFileTimes[i] - value);
+                if (dist < diff)
+                {
+                    return i-1;
+                }
+                else
+                {
+                    dist = diff;
+                }
+            }
+            return imageFileTimes.Length-1;
         }
 
         private void ShowImage(string filename)
@@ -136,32 +185,40 @@ namespace TrainingDataViewer
             Image.Source = bitmap;
         }
 
-        private void DataNamesBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            //DataNamesBoxが何も選択していなかったら何もしない
-            if (DataNamesBox.SelectedIndex < 0) return;
-            //「グラフを重ねて表示」にチェックがないならSeriesをクリア
-            if (OverlapCheck.IsChecked == false) model.ClearSeries();
-
-
-            string dataName = DataNamesBox.SelectedValue.ToString();
-            if (model.Contains(dataName)) model.AddLineSeries(dataName);
-            if (model.Contains("ImagePosition")) model.AddLineSeries("ImagePosition");
-
-            MyPlot.Model.InvalidatePlot(true);
-        }
-
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
-            model.ClearSeries();
-            MyPlot.Model.InvalidatePlot(true);
-            DataNamesBox.SelectedIndex = -1;
+            NameBox.SelectedIndex = -1;
         }
 
-        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        private void NameBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (DataNamesBox.SelectedIndex < 0) return;
+            model.ClearSeries();
+            selectedNames.Clear();
+            if (NameBox.SelectedItems.Count > 0)
+            {
+                foreach (var name in NameBox.SelectedItems)
+                {
+                    selectedNames.Add(name.ToString());
+                    model.AddLineSeries(name.ToString());
+                }
+                if (PositionVisibility.IsChecked == true) model.AddLineSeries("ImagePosition");
+            }
+            model.SetSlectedSeries(selectedNames);
+            model.ChangePositionX(imageFileTimes[imageIndex]);
+            MyPlot.Model.InvalidatePlot(true);
+        }
 
+        private void PositionVisibility_Click(object sender, RoutedEventArgs e)
+        {
+            if(PositionVisibility.IsChecked == true && NameBox.SelectedItems.Count > 0)
+            {
+                model.AddLineSeries("ImagePosition");
+            }
+            if (PositionVisibility.IsChecked == false)
+            {
+                model.RemoveSeries("ImagePosition");
+            }
+            MyPlot.Model.InvalidatePlot(true);
         }
     }
 }
