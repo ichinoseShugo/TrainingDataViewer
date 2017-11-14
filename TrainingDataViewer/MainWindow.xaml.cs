@@ -147,7 +147,7 @@ namespace TrainingDataViewer
             {
                 model.ChangePositionX(imageFileTimes[imageIndex]);
                 MyPlot.Model.InvalidatePlot(true);
-                DataLabel.Content = e.NewValue;
+                DataLabel.Content = imageFileTimes[imageIndex];
             }
         }
 
@@ -205,6 +205,7 @@ namespace TrainingDataViewer
             }
             model.SetSlectedSeries(selectedNames);
             model.ChangePositionX(imageFileTimes[imageIndex]);
+            //model.ChangeTouch(dataList.GetDataList("Touch"));
             MyPlot.Model.InvalidatePlot(true);
         }
 

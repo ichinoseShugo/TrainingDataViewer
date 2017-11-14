@@ -26,11 +26,11 @@
         </StackPanel>
         <Slider x:Name="Slider"
             TickFrequency="1"
-            SmallChange="1" 
-            LargeChange="100"
+            SmallChange="10" 
+            LargeChange="1000"
             ValueChanged="Slider_ValueChanged" Margin="50,5,50,5"/>
         <StackPanel Orientation="Horizontal">
-            <ScrollViewer Width="200" Height="480">
+            <ScrollViewer Name="Scroll" Width="200" Height="480">
                 <ListBox Name="NameBox" SelectionMode="Multiple" SelectionChanged="NameBox_SelectionChanged"/>
             </ScrollViewer>
             <Image x:Name="Image" Width="480" Height="360"/>

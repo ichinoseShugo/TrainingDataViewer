@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using OxyPlot;
 using OxyPlot.Series;
@@ -57,10 +54,7 @@ namespace TrainingDataViewer
         public void CreateLineSeries(String dataName, int tickness, List<double[]> dataList)
         {
             IList<DataPoint> points = new List<DataPoint>();
-            foreach (var list in dataList)
-            {
-                points.Add(new DataPoint(list[0], list[1]));
-            }
+            foreach (var list in dataList) points.Add(new DataPoint(list[0], list[1]));
             LineSeries lineSeries = new LineSeries
             {
                 Title = dataName,
@@ -94,6 +88,25 @@ namespace TrainingDataViewer
             };
         }
 
+        public void ChangeTouch(List<double[]> dataList)
+        {
+            IList<DataPoint> points = new List<DataPoint>();
+            foreach (var list in dataList)
+            {
+                if (list[1] == 0)
+                {
+                    points.Add(new DataPoint(list[0], 0));
+                }
+                else
+                {
+                    points.Add(new DataPoint(list[0], 0));
+                    points.Add(new DataPoint(list[0], list[1] * Max));
+                    points.Add(new DataPoint(list[0], list[1] * Min));
+                    points.Add(new DataPoint(list[0], 0));
+                }
+            }
+            ((LineSeries)NameToSeries["ImagePosition"]).ItemsSource = points;
+        }
         /// <summary>
         /// Seriesを削除
         /// </summary>
